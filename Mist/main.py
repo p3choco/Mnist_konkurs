@@ -1,3 +1,4 @@
+
 from idlelib import history
 
 import tensorflow as tf
@@ -34,7 +35,6 @@ def Zad_1():
 
     y_valid, y_train = y_train_full[:5000], y_train_full[5000:]
 
-
     class_names = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
                    "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
 
@@ -46,35 +46,33 @@ def Zad_1():
 
     history_conv_max_2 = History()
 
-    # def f1_score(y_true, y_pred):
-    #     precision = Precision()
-    #     recall = Recall()
-    #     p = precision(y_true, y_pred)
-    #     r = recall(y_true, y_pred)
-    #     return 2 * ((p * r) / (p + r + K.epsilon()))
-
-
     model = Sequential()
-    model.add(Conv2D(32, (3, 3), input_shape=X_train.shape[1:], padding="same"))
+    model.add(Conv2D(64, (3, 3), input_shape=X_train.shape[1:], padding="same", activation='relu'))
     model.add(MaxPooling2D((2, 2)))
-    model.add(Conv2D(16, (2, 2), padding="same"))
+    model.add(Dropout(0.25))
+
+    model.add(Conv2D(128, (3, 3), padding="same", activation='relu'))
     model.add(MaxPooling2D((2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Conv2D(256, (3, 3), padding="same", activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Dropout(0.25))
+
     model.add(Flatten())
+    model.add(Dense(128, activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Dense(n_classes, activation="softmax"))
     model.summary()
-
-    print(X_test.shape)
-    print(y_test.shape)
 
     y_train = np_utils.to_categorical(y_train, num_classes=10)
     y_valid = np_utils.to_categorical(y_valid, num_classes=10)
     y_test = np_utils.to_categorical(y_test, num_classes=10)
 
-
-
     early_stopping = EarlyStopping(patience=10, monitor="val_loss")
-    model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy', Precision(), Recall()])
-    model.fit(X_train, y_train,validation_data=(X_valid, y_valid),  validation_split=0.25, epochs=4, callbacks=[early_stopping, history_conv_max_2])
+    model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=['accuracy', Precision(), Recall()])
+    model.fit(X_train, y_train, validation_data=(X_valid, y_valid), validation_split=0.25, epochs=50, callbacks=[early_stopping, history_conv_max_2])
+
     history_dict = history_conv_max_2.history
     epochs = range(1, len(history_dict['accuracy']) + 1)
     # Wykresy metryk
@@ -96,28 +94,14 @@ def Zad_1():
     plt.ylabel('Loss')
     plt.legend()
 
-    plt.subplot(1, 4, 3)
-    plt.plot(epochs, history_dict['recall'], label='Training Loss')
-    plt.plot(epochs, history_dict['val_recall'], label='Validation Loss')
-    plt.title('Training and validation recall')
-    plt.xlabel('Epochs')
-    plt.ylabel('recall')
-    plt.legend()
-
     plt.show()
 
-    # y_pred = model.predict(X_test)
     results = model.evaluate(X_test, y_test)
     print("Loss:", results[0])
     print("Accuracy:", results[1])
-    # precision = precision_score(y_test, y_pred, average='macro')
-    # recall = recall_score(y_test, y_pred, average='macro')
-    # f1 = 2 * (precision * recall) / (precision + recall)
-    # print("Precision:", precision)
-    # print("Recall:", recall)
-    # print("F1-Score:", f1)
+
+
 
 Zad_1()
-
 
 
