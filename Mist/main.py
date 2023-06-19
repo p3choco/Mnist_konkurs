@@ -29,6 +29,7 @@ from sklearn.metrics import precision_score, recall_score
 from keras import backend as K
 import matplotlib.pyplot as plt
 
+
 def Zad_1():
     fashion_mnist = datasets.fashion_mnist
     (X_train_full, y_train_full), (X_test, y_test) = fashion_mnist.load_data()
@@ -47,20 +48,28 @@ def Zad_1():
     history_conv_max_2 = History()
 
     model = Sequential()
-    model.add(Conv2D(64, (3, 3), input_shape=X_train.shape[1:], padding="same", activation='relu'))
+    model.add(Conv2D(64, (3, 3), input_shape=X_train.shape[1:], padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(MaxPooling2D((2, 2)))
     model.add(Dropout(0.25))
 
-    model.add(Conv2D(128, (3, 3), padding="same", activation='relu'))
+    model.add(Conv2D(128, (3, 3), padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(MaxPooling2D((2, 2)))
     model.add(Dropout(0.25))
 
-    model.add(Conv2D(256, (3, 3), padding="same", activation='relu'))
+    model.add(Conv2D(256, (3, 3), padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(MaxPooling2D((2, 2)))
     model.add(Dropout(0.25))
 
     model.add(Flatten())
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(128))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(Dropout(0.5))
     model.add(Dense(n_classes, activation="softmax"))
     model.summary()
@@ -71,11 +80,12 @@ def Zad_1():
 
     early_stopping = EarlyStopping(patience=10, monitor="val_loss")
     model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=['accuracy', Precision(), Recall()])
-    model.fit(X_train, y_train, validation_data=(X_valid, y_valid), validation_split=0.25, epochs=50, callbacks=[early_stopping, history_conv_max_2])
+    model.fit(X_train, y_train, validation_data=(X_valid, y_valid), validation_split=0.25, epochs=25,
+              callbacks=[early_stopping, history_conv_max_2])
 
     history_dict = history_conv_max_2.history
     epochs = range(1, len(history_dict['accuracy']) + 1)
-    # Wykresy metryk
+
     plt.figure(figsize=(14, 5))
     print(history_dict.keys())
     plt.subplot(1, 4, 1)
@@ -99,7 +109,6 @@ def Zad_1():
     results = model.evaluate(X_test, y_test)
     print("Loss:", results[0])
     print("Accuracy:", results[1])
-
 
 
 Zad_1()
