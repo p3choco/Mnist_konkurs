@@ -1,1 +1,2 @@
-[# Mnist_konkurs](https://www.kaggle.com/code/p3choco/notebook8e7e9359f0)
+# Code for "Introduction to Artificial Intelligence" Classes
+This code was developed as part of a contest associated with the course.
